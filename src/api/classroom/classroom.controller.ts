@@ -19,7 +19,7 @@ export const create = async (
         const toCreate: Classroom = {
             name: name,
             students: students,
-            createdBy: userId
+            createdBy: req.user
         }
 
         const created = await CreateClass(toCreate);

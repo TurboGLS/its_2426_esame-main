@@ -2,7 +2,7 @@ export type User = {
     id?: string;
     firstName: string;
     lastName: string;
-    role: string[];
-    fullName: string;
+    role: 'student' | 'teacher';
+    fullName?: string;
     picture: string;
 }

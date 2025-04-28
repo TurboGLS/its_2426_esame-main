@@ -4,7 +4,7 @@ import { User } from './user.entity';
 const userSchema = new Schema<User>({
     firstName: String,
     lastName: String,
-    role: [String],
+    role: { type: String, default: 'student' },
     picture: String
 });
 

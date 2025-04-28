@@ -9,6 +9,7 @@ export const listUsers = async (
         const role = req.query.role as string | undefined;
         const users = await userService.list(role);
 
+        res.status(200);
         res.json(users);
     } catch (err) {
         next(err);
