@@ -20,6 +20,6 @@ classroomSchema.set('toJSON', {
 
 classroomSchema.virtual('studentsCount').get(function() {
     return this.students.length;
-})
+});
 
 export const ClassroomModel = model<Classroom>('Classroom', classroomSchema);

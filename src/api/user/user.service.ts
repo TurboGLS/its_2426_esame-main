@@ -40,15 +40,13 @@ export class UserService {
     }
 
     async list(role?: string): Promise<User[]> {
-        const filter: any = {};
 
         if (role) {
-            filter.role = role;
+            return UserModel.find({ role });
         }
-
-        const users = await UserModel.find(filter);
-
-        return users;
+        else {
+            return UserModel.find();
+        }
     }
 }
 

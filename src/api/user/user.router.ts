@@ -6,6 +6,6 @@ import { listUsers } from "./user.controller";
 const router = Router();
 
 router.use(isAuthenticated);
-router.post('', listUsers);
+router.get('', listUsers);
 
 export default router;

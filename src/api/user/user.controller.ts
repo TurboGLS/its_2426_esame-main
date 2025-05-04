@@ -6,8 +6,8 @@ export const listUsers = async (
     res: Response,
     next: NextFunction) => {
     try {
-        const role = req.query.role as string | undefined;
-        const users = await userService.list(role);
+        const type = req.query.type as string | undefined;
+        const users = await userService.list(type);
 
         res.status(200);
         res.json(users);

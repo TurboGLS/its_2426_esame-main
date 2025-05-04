@@ -1,8 +1,9 @@
-import { NextFunction, Response } from "express"
+import { NextFunction, Request, Response } from "express"
 import { TypedRequest } from "../../lib/typed-request.interface"
 import { CreateClassDTO } from "./classroom.dto"
 import { Classroom } from "./classroom.entity";
-import { CreateClass } from "./classroom.service";
+import { CreateClass, getClassByRole } from "./classroom.service";
+import { use } from "passport";
 
 export const create = async (
     req: TypedRequest<CreateClassDTO>,
@@ -29,5 +30,27 @@ export const create = async (
     } catch (err) {
         console.error(err);
         res.status(500).json({ error: "Errore durante la creazione della Classroom" });
+    }
+};
+
+export const classrooms = async (
+    req: Request,
+    res: Response,
+    next: NextFunction) => {
+    try {
+        const user = req.user;
+
+        let classes: Classroom[] = [];
+
+        if (!user) {
+            res.status(401).json({ message: 'Utente non autenticato' });
+            return;
+        }
+
+        classes = await getClassByRole(user);
+
+        res.status(200).json({ classes });
+    } catch (err) {
+        next(err);
     }
 };
