@@ -7,10 +7,15 @@ export const listUsers = async (
     next: NextFunction) => {
     try {
         const type = req.query.type as string | undefined;
+
+        if (type !== 'student' && type !== 'teacher') {
+            res.status(400).json({ message: 'Type role non corretto' });
+            return;
+        }
+
         const users = await userService.list(type);
 
-        res.status(200);
-        res.json(users);
+        res.status(200).json(users);
     } catch (err) {
         next(err);
     }

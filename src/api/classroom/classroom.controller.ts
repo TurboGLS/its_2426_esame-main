@@ -3,7 +3,6 @@ import { TypedRequest } from "../../lib/typed-request.interface"
 import { CreateClassDTO } from "./classroom.dto"
 import { Classroom } from "./classroom.entity";
 import { CreateClass, getClassByRole } from "./classroom.service";
-import { use } from "passport";
 
 export const create = async (
     req: TypedRequest<CreateClassDTO>,
@@ -11,10 +10,15 @@ export const create = async (
     next: NextFunction) => {
     try {
         const { name, students } = req.body;
-        const userId = req.user?.id!;
 
         if (!req.user) {
+            res.status(400).json({ message: 'Utente Not Found'});
             throw new Error('Not Found');
+        }
+
+        if (req.user.role === 'student') {
+            res.status(404).json({ message: 'Utente non autorizzato, solo i docenti posso creare delle classrooms' });
+            return;
         }
 
         const toCreate: Classroom = {
@@ -25,11 +29,9 @@ export const create = async (
 
         const created = await CreateClass(toCreate);
 
-        res.status(200);
-        res.json(created);
+        res.status(200).json(created);
     } catch (err) {
-        console.error(err);
-        res.status(500).json({ error: "Errore durante la creazione della Classroom" });
+        next(err);
     }
 };
 
@@ -43,7 +45,7 @@ export const classrooms = async (
         let classes: Classroom[] = [];
 
         if (!user) {
-            res.status(401).json({ message: 'Utente non autenticato' });
+            res.status(400).json({ message: 'Utente non autenticato' });
             return;
         }
 

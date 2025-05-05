@@ -9,5 +9,6 @@ const router = Router();
 router.use(isAuthenticated);
 router.post('/create', validate(CreateClassDTO), create);
 router.get('', classrooms);
+router.post('/:classroommld/assigments', );
 
 export default router;
