@@ -8,3 +8,8 @@ export class CreateClassDTO {
     @IsString({ each: true })
     students: string[];
 }
+
+export class CreateAssignmentsDTO {
+    @IsString()
+    title: string;
+}
