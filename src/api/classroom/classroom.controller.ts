@@ -1,10 +1,10 @@
 import { NextFunction, Request, Response } from "express"
 import { TypedRequest } from "../../lib/typed-request.interface"
-import { CreateAssignmentsDTO, CreateClassDTO } from "./classroom.dto"
+import { CreateClassDTO } from "./classroom.dto"
 import { Classroom } from "./classroom.entity";
-import { CreateClass, getClassByRole } from "./classroom.service";
-import { findClassroomById } from "../assignments/assignments.service";
+import { CreateClass, findClassroomAssignments, findClassroomById, getClassByRole } from "./classroom.service";
 import { AssignmentsModel } from "../assignments/assignments.model";
+import { assign, includes } from "lodash";
 
 export const create = async (
     req: TypedRequest<CreateClassDTO>,
@@ -68,31 +68,103 @@ export const createAssignments = async (
         const { title } = req.body;
         const user = req.user;
 
-        if(user?.role !== "teacher") {
-            return res.status(404).json({ error: "L'Utente non ha i permessi necessari" });
+        if (user?.role !== "teacher") {
+            res.status(404).json({ error: "L'Utente non ha i permessi necessari" });
+            return;
         }
 
         const classroom = await findClassroomById(classroomId);
 
-        if(!classroom) {
-            return res.status(404).json({ error: "Classe non trovata"});
+        if (!classroom) {
+            res.status(404).json({ error: "Classe non trovata"});
+            return;
         }
 
-        if(classroom.createdBy.id !== user.id) {
-            return res.status(404).json({ error: "Non sei il docente di questa classe" });
+        if (classroom.createdBy.id !== user.id) {
+            res.status(404).json({ error: "Non sei il docente di questa classe" });
+            return;
         }
 
         const newAssignments = await AssignmentsModel.create({
             title: title,
             studentsCount: classroom.students.length,
-            completedCount: 0,
+            completedStudents: [],
             completed: false,
-            createdBy: user.id
+            createdBy: user.id,
+            classroomId: classroomId
         });
 
         await newAssignments.populate('createdBy');
 
         res.status(200).json(newAssignments);
+    } catch (err) {
+        next(err);
+    }
+}
+
+export const getAssignments = async (
+    req: Request,
+    res: Response,
+    next: NextFunction) => {
+    try {
+        const { classroomId } = req.params;
+        const user = req.user;
+
+        if (user?.role !== "teacher") {
+            res.status(404).json({ error: "L'Utente non ha i permessi necessari" });
+            return;
+        }
+
+        const assignments = await findClassroomAssignments(classroomId);
+
+        if (!assignments) {
+            res.status(404).json({ error: "Classe non trovata"});
+            return;
+        }
+
+        const classroomTeacher = await findClassroomById(classroomId);
+
+        if (classroomTeacher?.createdBy.id !== user.id) {
+            res.status(404).json({ error: "Non sei il docente di questa classe" });
+            return;
+        }
+
+        res.status(200).json(assignments);
+    } catch (err) {
+        next(err);
+    }
+}
+
+export const completedAssignments = async (
+    req: Request,
+    res: Response,
+    next: NextFunction) => {
+    try {
+        const { classroomId, assignmentsId } = req.params;
+        const user = req.user;
+
+        if (user?.role !== "student") {
+            res.status(404).json({ error: "L'Utente non ha i permessi necessari" });
+            return;
+        }
+
+        const assignments = await findClassroomAssignments(classroomId);
+
+        const classroomStudents = await findClassroomById(classroomId);
+
+        if (!assignments) {
+            res.status(404).json({ error: "Classe non trovata"});
+            return;
+        }
+
+        if (!classroomStudents?.students.includes(user.id)) {
+            res.status(404).json({ error: "Non appartieni a questa classe" });
+            return;
+        }
+
+        const completed = await completedAssignments(assignmentsId, completed);
+
+        res.status(200).json(assignments);
     } catch (err) {
         next(err);
     }

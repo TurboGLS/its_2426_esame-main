@@ -1,3 +1,4 @@
+import { AssignmentsModel } from "../assignments/assignments.model";
 import { User } from "../user/user.entity";
 import { Classroom } from "./classroom.entity";
 import { ClassroomModel } from "./classroom.model";
@@ -29,4 +30,16 @@ export async function getClassByRole(user: User): Promise<Classroom[]> {
     else {
         return GetAllClasses(); // usato per evitare un problema di Function lacks ending return statement and return type does not include 'undefined'.
     }
+}
+
+export async function findClassroomById(classroomId: string) {
+    return ClassroomModel.findById(classroomId).populate('createdBy');
+}
+
+export async function findClassroomAssignments(id: string) {
+    return AssignmentsModel.find({ classroomId: id }).populate('createdBy');
+}
+
+export async function completAssignments(assignmentsId: string) {
+    return AssignmentsModel.findByIdAndUpdate(assignmentsId, { completed: false }, { new: true });
 }

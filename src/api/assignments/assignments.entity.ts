@@ -3,9 +3,10 @@ import { User } from "../user/user.entity";
 export type Assignments = {
     id: string;
     title: string;
-    studentsCount: number;
-    completedCount: number;
-    completed: boolean;
     createdAt: Date;
+    studentsCount: number;
+    completedStudents: User[];
+    completed: boolean;
+    classroomId: string;
     createdBy: User;
 }

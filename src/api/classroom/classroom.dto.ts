@@ -9,7 +9,7 @@ export class CreateClassDTO {
     students: string[];
 }
 
-export class CreateAssignmentsDTO {
+export class ASsignmentsDTO {
     @IsString()
     title: string;
 }
