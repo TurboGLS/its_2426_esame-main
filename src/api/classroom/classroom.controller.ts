@@ -2,7 +2,7 @@ import { NextFunction, Request, Response } from "express"
 import { TypedRequest } from "../../lib/typed-request.interface"
 import { CreateClassDTO } from "./classroom.dto"
 import { Classroom } from "./classroom.entity";
-import { CreateClass, findClassroomAssignments, findClassroomById, getClassByRole } from "./classroom.service";
+import { completeAssignments, CreateClass, findClassroomAssignments, findClassroomById, getClassByRole } from "./classroom.service";
 import { AssignmentsModel } from "../assignments/assignments.model";
 import { assign, includes } from "lodash";
 
@@ -143,28 +143,24 @@ export const completedAssignments = async (
         const { classroomId, assignmentsId } = req.params;
         const user = req.user;
 
-        if (user?.role !== "student") {
-            res.status(404).json({ error: "L'Utente non ha i permessi necessari" });
+        if (!user) {
+            res.status(401).json({ message: 'Utente non autenticato' });
             return;
         }
 
-        const assignments = await findClassroomAssignments(classroomId);
+        if (user.role !== 'student') {
+            res.status(403).json({ message: "L'Utente non è uno studente" });
+            return;
+        }
+        
+        const updatedAssignment = await completeAssignments(classroomId, assignmentsId, user);
 
-        const classroomStudents = await findClassroomById(classroomId);
-
-        if (!assignments) {
-            res.status(404).json({ error: "Classe non trovata"});
+        if (!updatedAssignment) {
+            res.status(404).json({ message: 'Assignment non trovato'});
             return;
         }
 
-        if (!classroomStudents?.students.includes(user.id)) {
-            res.status(404).json({ error: "Non appartieni a questa classe" });
-            return;
-        }
-
-        const completed = await completedAssignments(assignmentsId, completed);
-
-        res.status(200).json(assignments);
+        res.status(200).json(updatedAssignment);
     } catch (err) {
         next(err);
     }
