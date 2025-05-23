@@ -48,7 +48,7 @@ export async function completeAssignments(classroomId: string, assignmentId: str
         throw new Error("L'Utente non è uno studente");
     }
 
-    const assignment = await AssignmentsModel.findOne({ _id: assignmentId, classroomId: classroomId }).populate('completedStudents');
+    const assignment = await AssignmentsModel.findOne({ _id: assignmentId, classroomId: classroomId }).populate('completedStudents').populate('createdBy');
 
     if (!assignment) {
         throw new Error("L'Assignment non trovato o non appartiene a questa classe")
@@ -64,7 +64,7 @@ export async function completeAssignments(classroomId: string, assignmentId: str
 
     assignment.completed = assignment.completedStudents.length === assignment.studentsCount;
 
-    await assignment.save();
+    await assignment.save();    
 
     return {
         id: assignment.id,
@@ -73,6 +73,14 @@ export async function completeAssignments(classroomId: string, assignmentId: str
         completedCount: assignment.completedStudents.length,
         completed: assignment.completed,
         createdAt: assignment.createdAt,
-        createdBy: assignment.createdBy
+        createdBy: assignment.createdBy,
+        completedBy: {
+            id: user.id,
+            firstName: user.firstName,
+            lastName: user.lastName,
+            role: user.role,
+            picture: user.picture,
+            fullName: user.fullName
+        }
     };
 }

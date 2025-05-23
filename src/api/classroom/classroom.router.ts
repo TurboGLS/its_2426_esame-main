@@ -11,6 +11,6 @@ router.post('/create', validate(CreateClassDTO), create);
 router.get('', classrooms);
 router.post('/:classroomId/assigments', validate(ASsignmentsDTO) , createAssignments);
 router.get('/:classroomId/assigments', getAssignments);
-router.post('/classroomId/assignments/assignmentsId', completedAssignments);
+router.patch('/:classroomId/assignments/:assignmentsId', completedAssignments);
 
 export default router;
