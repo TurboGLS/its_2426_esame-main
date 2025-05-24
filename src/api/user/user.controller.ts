@@ -20,3 +20,10 @@ export const listUsers = async (
         next(err);
     }
 };
+
+export const me = async (
+    req: Request,
+    res: Response,
+    next: NextFunction) => {
+        res.json(req.user);
+    };

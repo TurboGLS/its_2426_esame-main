@@ -5,4 +5,4 @@ export type User = {
     role: 'student' | 'teacher';
     fullName?: string;
     picture: string;
-}
+};

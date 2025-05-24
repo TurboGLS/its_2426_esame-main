@@ -44,16 +44,14 @@ export const classrooms = async (
     try {
         const user = req.user;
 
-        let classes: Classroom[] = [];
-
         if (!user) {
             res.status(400).json({ message: 'Utente non autenticato' });
             return;
         }
 
-        classes = await getClassByRole(user);
+        const classes = await getClassByRole(user);
 
-        res.status(200).json({ classes });
+        res.status(200).json(classes);
     } catch (err) {
         next(err);
     }

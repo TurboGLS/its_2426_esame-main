@@ -12,7 +12,7 @@ export async function CreateClass(data: Classroom): Promise<Classroom> {
 }
 
 export async function GetByTeacher(id: string): Promise<Classroom[]> {
-    return ClassroomModel.find({ teacher: id }).populate('createdBy');
+    return ClassroomModel.find({ createdBy: id }).populate('createdBy');
 }
 
 export async function GetByStudent(id: string): Promise<Classroom[]> {
